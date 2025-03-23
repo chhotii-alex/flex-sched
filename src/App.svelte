@@ -8,15 +8,32 @@
   let chunks = [];
   let startChunk = null;
   
+  $: url = makeDownloadURL(chunks, startChunk);
+
+  function makeDownloadURL() {
+     const blob = new Blob([stringifyData()], {
+            type: "application/json",
+        });
+        return URL.createObjectURL(blob);
+  }
+
+  let files;
+  function upload() {
+    const reader = new FileReader();
+        reader.onload = (evt) => {
+            let txt = evt.target.result;
+	    chunks = chunksFromJSON(txt);
+        };
+        reader.readAsText(files[0]);
+  }
+
   function makeBlank() {
     const newChunk = new FinalChunk("Design\nmy day!");
     return [newChunk];
   }
 
-  function updateChunks(newChunks) {
-    chunks = newChunks;
-    if (isBrowser) {
-      let basics = [];
+  function stringifyData() {
+        let basics = [];
       for (let chunk of chunks) {
         let oo = {id: chunk.id, text: chunk.text,
 	    className: chunk.constructor.name,
@@ -34,17 +51,18 @@
 	}
 	basics.push(oo);
       }
-      let s = JSON.stringify(basics);
+      return JSON.stringify(basics);
+   }
+
+  function updateChunks(newChunks) {
+    chunks = newChunks;
+    if (isBrowser) {
+      let s = stringifyData();
       localStorage.setItem("chunks", s);
     }
   }
 
-  function chunksFromStorage() {
-    if (!isBrowser) return null;
-    if (!localStorage.getItem("chunks")) {
-      return makeBlank();
-    }
-    let s = localStorage.getItem("chunks");
+  function chunksFromJSON(s) {
     let basics = JSON.parse(s);
     if (!basics.length) return makeBlank();
     let chunksById = {};
@@ -88,6 +106,15 @@
     return newChunks;
   }
 
+  function chunksFromStorage() {
+    if (!isBrowser) return null;
+    if (!localStorage.getItem("chunks")) {
+      return makeBlank();
+    }
+    let s = localStorage.getItem("chunks");
+    return chunksFromJSON(s);
+  }
+
   onMount(() => {
     chunks = chunksFromStorage();
     });
@@ -95,6 +122,13 @@
 </script>
 
 <main>
+    <a href={url} download={`schedule.json`}>
+            Download This Plan
+        </a>
+      <input id="myfiles" type="file" accept=".json" bind:files />
+      {#if files}
+        <button on:click={upload}>Upload</button>
+      {/if}
   {#if tab == "design"}
     <DesignTab bind:chunks={chunks} bind:startChunk={startChunk}
         {updateChunks} />

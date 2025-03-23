@@ -201,7 +201,8 @@
         <p>
           {selectedItem.constructor.name}
 	</p>
-	<textarea bind:value={selectedItem.text} rows="5" on:input={editText}/>
+	<textarea bind:value={selectedItem.text} rows="5" on:input={editText}>
+	</textarea>
 	{#if selectedItem != startChunk}
         	<button on:click={() => startChunk = selectedItem} >
 	           Set Start
