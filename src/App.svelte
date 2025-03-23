@@ -14,7 +14,7 @@
   }
 
   function updateChunks(newChunks) {
-    chunks = chunks;
+    chunks = newChunks;
     if (isBrowser) {
       let basics = [];
       for (let chunk of chunks) {
@@ -97,7 +97,7 @@
 <main>
   {#if tab == "design"}
     <DesignTab bind:chunks={chunks} bind:startChunk={startChunk}
-        bind:updateChunks={updateChunks} />
+        {updateChunks} />
   {:else}
     <h2>Run Mode</h2>
   {/if}

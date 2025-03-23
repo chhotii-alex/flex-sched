@@ -122,6 +122,18 @@
    updateChunks(chunks);
   }
 
+  function canBeDeleted(otherChunk) {
+    if (otherChunk == startChunk) return false;
+    for (let chunk of chunks) {
+      if (chunk.pointsToChunk(otherChunk)) return false;
+    }	 
+    return true;
+  }
+
+  function deleteItem() {
+     updateChunks(chunks.filter(c => c != selectedItem));
+  }
+
 </script>
 
     <h2>Design Mode</h2>
@@ -190,10 +202,15 @@
           {selectedItem.constructor.name}
 	</p>
 	<textarea bind:value={selectedItem.text} rows="5" on:input={editText}/>
-	<button on:click={() => startChunk = selectedItem} >
-	  Set Start
-	</button>
+	{#if selectedItem != startChunk}
+        	<button on:click={() => startChunk = selectedItem} >
+	           Set Start
+	        </button>
+	{/if}
 	<input type="time" bind:value={selectedItem.endTime} on:input={editText} />
+	{#if canBeDeleted(selectedItem)}
+        	<button on:click={deleteItem}>Delete</button>
+	{/if}
       {/if}
     </div>
     <div class="buttons">
