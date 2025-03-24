@@ -1,30 +1,30 @@
 <script>
-  import { onMount } from 'svelte';
-  import DesignTab from './DesignTab.svelte';
+  import { onMount } from "svelte";
+  import DesignTab from "./DesignTab.svelte";
 
   const isBrowser = typeof window !== "undefined";
 
   let tab = "design";
   let chunks = [];
   let startChunk = null;
-  
+
   $: url = makeDownloadURL(chunks, startChunk);
 
   function makeDownloadURL() {
-     const blob = new Blob([stringifyData()], {
-            type: "application/json",
-        });
-        return URL.createObjectURL(blob);
+    const blob = new Blob([stringifyData()], {
+      type: "application/json",
+    });
+    return URL.createObjectURL(blob);
   }
 
   let files;
   function upload() {
     const reader = new FileReader();
-        reader.onload = (evt) => {
-            let txt = evt.target.result;
-	    chunks = chunksFromJSON(txt);
-        };
-        reader.readAsText(files[0]);
+    reader.onload = (evt) => {
+      let txt = evt.target.result;
+      chunks = chunksFromJSON(txt);
+    };
+    reader.readAsText(files[0]);
   }
 
   function makeBlank() {
@@ -33,26 +33,37 @@
   }
 
   function stringifyData() {
-        let basics = [];
-      for (let chunk of chunks) {
-        let oo = {id: chunk.id, text: chunk.text,
-	    className: chunk.constructor.name,
-	  x:chunk.centerX, y:chunk.centerY,
-	  dx:chunk.sizeX, dy:chunk.sizeY,
-	  endTime:chunk.endTime};
-	if (chunk == startChunk) {
-	  oo.isStartChunk = true;
-	}
-	for (let tag of ["yesChunk", "noChunk", "nextChunk", "subChunk1",
-	   "subChunk2", "followingChunk"]) {
-	   if (chunk[tag]) {
-	     oo[tag] = chunk[tag].id;
-	   }
-	}
-	basics.push(oo);
+    let basics = [];
+    for (let chunk of chunks) {
+      let oo = {
+        id: chunk.id,
+        text: chunk.text,
+        className: chunk.constructor.name,
+        x: chunk.centerX,
+        y: chunk.centerY,
+        dx: chunk.sizeX,
+        dy: chunk.sizeY,
+        endTime: chunk.endTime,
+      };
+      if (chunk == startChunk) {
+        oo.isStartChunk = true;
       }
-      return JSON.stringify(basics);
-   }
+      for (let tag of [
+        "yesChunk",
+        "noChunk",
+        "nextChunk",
+        "subChunk1",
+        "subChunk2",
+        "followingChunk",
+      ]) {
+        if (chunk[tag]) {
+          oo[tag] = chunk[tag].id;
+        }
+      }
+      basics.push(oo);
+    }
+    return JSON.stringify(basics);
+  }
 
   function updateChunks(newChunks) {
     chunks = newChunks;
@@ -68,30 +79,30 @@
     let chunksById = {};
     let newChunks = [];
     for (let oo of basics) {
-       let id = oo.id;
-       let text = oo.text;
-       let chunk = new window[oo.className](text, id);
-       chunksById[id] = chunk;
-       chunk.setCenter(oo.x, oo.y);
-       chunk.endTime = oo.endTime;
-       if (oo.dx && oo.dy) {
-         chunk.setSize(oo.dx, oo.dy);
-	 }
-       newChunks.push(chunk);
-       if (oo.isStartChunk) {
-         startChunk = chunk;
-       }
+      let id = oo.id;
+      let text = oo.text;
+      let chunk = new window[oo.className](text, id);
+      chunksById[id] = chunk;
+      chunk.setCenter(oo.x, oo.y);
+      chunk.endTime = oo.endTime;
+      if (oo.dx && oo.dy) {
+        chunk.setSize(oo.dx, oo.dy);
+      }
+      newChunks.push(chunk);
+      if (oo.isStartChunk) {
+        startChunk = chunk;
+      }
     }
     for (let oo of basics) {
       let chunk = chunksById[oo.id];
       if (oo.yesChunk) {
-         chunk.setYesChunk(chunksById[oo.yesChunk]);
-	 }
+        chunk.setYesChunk(chunksById[oo.yesChunk]);
+      }
       if (oo.noChunk) {
-         chunk.setNoChunk(chunksById[oo.noChunk]);
+        chunk.setNoChunk(chunksById[oo.noChunk]);
       }
       if (oo.nextChunk) {
-         chunk.setNextChunk(chunksById[oo.nextChunk]);
+        chunk.setNextChunk(chunksById[oo.nextChunk]);
       }
       if (oo.subChunk1) {
         chunk.setNextChunk(chunksById[oo.subChunk1], 1);
@@ -117,21 +128,17 @@
 
   onMount(() => {
     chunks = chunksFromStorage();
-    });
-
+  });
 </script>
 
 <main>
-    <a href={url} download={`schedule.json`}>
-            Download This Plan
-        </a>
-      <input id="myfiles" type="file" accept=".json" bind:files />
-      {#if files}
-        <button on:click={upload}>Upload</button>
-      {/if}
+  <a href={url} download={`schedule.json`}> Download This Plan </a>
+  <input id="myfiles" type="file" accept=".json" bind:files />
+  {#if files}
+    <button on:click={upload}>Upload</button>
+  {/if}
   {#if tab == "design"}
-    <DesignTab bind:chunks={chunks} bind:startChunk={startChunk}
-        {updateChunks} />
+    <DesignTab bind:chunks bind:startChunk {updateChunks} />
   {:else}
     <h2>Run Mode</h2>
   {/if}
