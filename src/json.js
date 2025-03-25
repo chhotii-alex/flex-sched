@@ -31,7 +31,7 @@ export function stringifyData(chunks, startChunk) {
   return JSON.stringify(basics);
 }
 
-function chunksFromJSON(s) {
+export function chunksFromJSON(s) {
   let basics = JSON.parse(s);
   if (!basics.length) return makeBlank();
   let chunksById = {};
