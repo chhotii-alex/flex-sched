@@ -28,7 +28,7 @@ export function stringifyData(chunks, startChunk) {
     }
     basics.push(oo);
   }
-  return JSON.stringify(basics);
+  return JSON.stringify(basics, null, 2);
 }
 
 export function chunksFromJSON(s) {

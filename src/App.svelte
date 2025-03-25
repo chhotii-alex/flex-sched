@@ -3,7 +3,7 @@
   import DesignTab from "./DesignTab.svelte";
   import UploadDownload from "./UploadDownload.svelte";
   import { stringifyData, chunksFromJSON } from "./json.js";
-  import { FinalChunk } from './chunkclasses.js';
+  import { FinalChunk } from "./chunkclass.js";
 
   const isBrowser = typeof window !== "undefined";
 
@@ -34,12 +34,12 @@
   }
 
   onMount(() => {
-    [chunks, startChunk] = chunksFromStorage();
+    [startChunk, chunks] = chunksFromStorage();
   });
 </script>
 
 <main>
-  <UploadDownload {startChunk} {chunks} />
+  <UploadDownload bind:startChunk bind:chunks />
   {#if tab == "design"}
     <DesignTab bind:chunks bind:startChunk {updateChunks} />
   {:else}

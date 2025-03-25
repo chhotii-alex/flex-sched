@@ -7,10 +7,12 @@
   $: url = makeDownloadURL(chunks, startChunk);
 
   function makeDownloadURL(chunks, startChunk) {
-    const blob = new Blob([stringifyData(chunks, startChunk)], {
-      type: "application/json",
-    });
-    return URL.createObjectURL(blob);
+    if (chunks) {
+      const blob = new Blob([stringifyData(chunks, startChunk)], {
+        type: "application/json",
+      });
+      return URL.createObjectURL(blob);
+    }
   }
 
   let files;
@@ -18,13 +20,15 @@
     const reader = new FileReader();
     reader.onload = (evt) => {
       let txt = evt.target.result;
-      [chunks, startChunk] = chunksFromJSON(txt);
+      [startChunk, chunks] = chunksFromJSON(txt);
     };
     reader.readAsText(files[0]);
   }
 </script>
 
-<a href={url} download={`schedule.json`}> Download This Plan </a>
+{#if url}
+  <a href={url} download={`schedule.json`}> Download This Plan </a>
+{/if}
 <input id="myfiles" type="file" accept=".json" bind:files />
 {#if files}
   <button on:click={upload}>Upload</button>
