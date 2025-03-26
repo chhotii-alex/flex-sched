@@ -19,9 +19,10 @@
 
   let selectedItem = null;
   let itemBeingDragged = null;
+  let arrowStartPoint = null;
   let arrowOrigin = null;
   let arrowOriginPort = null;
-  let arrowEnd = null;
+  let arrowEndPoint = null;
   let arrowTarget = null;
   let arrowTargetPort = null;
   let resizingItem = null;
@@ -39,6 +40,7 @@
           if (fields.length < 2) break;
           arrowOrigin = chunks.find((c) => c.id == fields[0]);
           arrowOriginPort = fields[1];
+          arrowStartPoint = arrowOrigin.getPorts()[arrowOriginPort];
           break;
         }
         if (item.tagName == "ellipse") {
@@ -62,9 +64,8 @@
   function mouseMove(event) {
     if (itemBeingDragged) {
       itemBeingDragged.setCenter(event.offsetX, event.offsetY);
-      selectedItem = selectedItem;
     } else if (arrowOrigin) {
-      arrowEnd = { x: event.offsetX, y: event.offsetY };
+      arrowEndPoint = { x: event.offsetX, y: event.offsetY };
       let endTarget = event.srcElement;
       if (endTarget.tagName == "circle") {
         let fields = endTarget.id.split("_port");
@@ -105,19 +106,18 @@
   }
 
   function mouseUp(event) {
-    if (itemBeingDragged) {
-      itemBeingDragged = null;
-    } else if (arrowOrigin) {
+    if (arrowOrigin) {
       completeArrow();
-      arrowOrigin = null;
-      arrowEnd = null;
-      arrowTarget = null;
-    } else if (resizingItem) {
-      resizingItem = null;
     }
+    itemBeingDragged = null;
+    arrowOrigin = null;
+    arrowStartPoint = null;
+    arrowEndPoint = null;
+    arrowTarget = null;
+    resizingItem = null;
   }
 
-  function editText(event) {
+  function didChange(event) {
     updateChunks(chunks);
   }
 
@@ -139,7 +139,6 @@
   <div class="canvas" style="overflow:scroll;max-height:70vmin" width="95%">
     <svg
       height="2000px"
-      ,
       width="2000px"
       on:mousedown={mouseDown}
       on:mousemove={mouseMove}
@@ -212,12 +211,12 @@
           id={`sizer_${chunk.id}`}
         />
       {/each}
-      {#if arrowOrigin && arrowEnd}
+      {#if arrowStartPoint && arrowEndPoint}
         <line
-          x2={arrowOrigin.getPorts()[arrowOriginPort].x}
-          y2={arrowOrigin.getPorts()[arrowOriginPort].y}
-          x1={arrowEnd.x}
-          y1={arrowEnd.y}
+          x2={arrowStartPoint.x}
+          y2={arrowStartPoint.y}
+          x1={arrowEndPoint.x}
+          y1={arrowEndPoint.y}
           stroke="black"
         />
       {/if}
@@ -229,7 +228,7 @@
       <p>
         {selectedItem.constructor.name}
       </p>
-      <textarea bind:value={selectedItem.text} rows="5" on:input={editText}>
+      <textarea bind:value={selectedItem.text} rows="5" on:input={didChange}>
       </textarea>
       {#if selectedItem != startChunk}
         <button on:click={() => (startChunk = selectedItem)}>
@@ -239,7 +238,7 @@
       <input
         type="time"
         bind:value={selectedItem.endTime}
-        on:input={editText}
+        on:input={didChange}
       />
       {#if canBeDeleted(selectedItem)}
         <button on:click={deleteItem}>Delete</button>
