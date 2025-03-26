@@ -27,17 +27,28 @@ class Chunk {
     this.sizeY = 100;
     this.addPort(
       "target",
-      () => this.centerX,
-      () => this.centerY - this.sizeY / 2,
+      () => this.getX(0),
+      () => this.getY(-0.5),
       null,
       true,
     );
   }
+  getX(fraction) {
+    return this.centerX + fraction * this.sizeX;
+  }
+  getY(fraction) {
+    return this.centerY + fraction * this.sizeY;
+  }
   setCenter(x, y) {
+    if (typeof x !== "number") throw new Error(`${x} is not a number`);
+    if (typeof y !== "number") throw new Error(`${y} is not a number`);
+
     this.centerX = x;
     this.centerY = y;
   }
   setSize(dx, dy) {
+    if (typeof dx !== "number") throw new Error(`${dx} is not a number`);
+    if (typeof dy !== "number") throw new Error(`${dy} is not a number`);
     this.sizeX = dx;
     this.sizeY = dy;
   }
@@ -95,22 +106,22 @@ class Question extends Chunk {
     this.shape = "polygon";
     this.addPort(
       "yesChunk",
-      () => this.centerX + this.sizeX / 4,
-      () => this.centerY + this.sizeY / 4,
+      () => this.getX(0.25),
+      () => this.getY(0.25),
       "Y",
     );
     this.addPort(
       "noChunk",
-      () => this.centerX - this.sizeX / 4,
-      () => this.centerY + this.sizeY / 4,
+      () => this.getX(-0.25),
+      () => this.getY(0.25),
       "N",
     );
   }
   getPoints() {
-    return `${this.centerX} ${this.centerY - this.sizeY / 2}
-                ${this.centerX + this.sizeX / 2} ${this.centerY}
-                ${this.centerX} ${this.centerY + this.sizeY / 2}
-                ${this.centerX - this.sizeX / 2} ${this.centerY}`;
+    return `${this.getX(0)} ${this.getY(-0.5)}
+                ${this.getX(0.5)} ${this.getY(0)}
+                ${this.getX(0)} ${this.getY(0.5)}
+                ${this.getX(-0.5)} ${this.getY(0)}`;
   }
 }
 
@@ -120,8 +131,8 @@ class State extends Chunk {
     super(text, id);
     this.addPort(
       "nextChunk",
-      () => this.centerX,
-      () => this.centerY + this.sizeY / 2,
+      () => this.getX(0),
+      () => this.getY(0.5),
     );
   }
 }
@@ -133,25 +144,25 @@ class Parallelizer extends Chunk {
     this.sizeX = 200;
     this.addPort(
       "subChunk1",
-      () => this.centerX - this.sizeX / 4,
-      () => this.centerY + this.sizeY / 2,
+      () => this.getX(-0.25),
+      () => this.getY(0.5),
     );
     this.addPort(
       "subChunk2",
-      () => this.centerX + this.sizeX / 4,
-      () => this.centerY + this.sizeY / 2,
+      () => this.getX(0.25),
+      () => this.getY(0.5),
     );
     this.addPort(
       "followingChunk",
-      () => this.centerX + this.sizeX / 2,
-      () => this.centerY,
+      () => this.getX(0.5),
+      () => this.getY(0),
     );
   }
   getPoints() {
-    return `${this.centerX - this.sizeX / 2} ${this.centerY - this.sizeY / 2}
-                    ${this.centerX + this.sizeX / 2} ${this.centerY - this.sizeY / 2}
-                    ${this.centerX + this.sizeX / 2} ${this.centerY + this.sizeY / 2}
-                    ${this.centerX - this.sizeX / 2} ${this.centerY + this.sizeY / 2}`;
+    return `${this.getX(-0.5)} ${this.getY(-0.5)}
+                    ${this.getX(0.5)} ${this.getY(-0.5)}
+                    ${this.getX(0.5)} ${this.getY(0.5)}
+                    ${this.getX(-0.5)} ${this.getY(0.5)}`;
   }
 }
 

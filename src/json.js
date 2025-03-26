@@ -36,9 +36,7 @@ export function chunksFromJSON(s) {
     chunksById[id] = chunk;
     chunk.setCenter(oo.centerX, oo.centerY);
     chunk.endTime = oo.endTime;
-    if (oo.sizeX && oo.sizeY) {
-      chunk.setSize(oo.sizeX, oo.sizeY);
-    }
+    chunk.setSize(oo.sizeX, oo.sizeY);
     newChunks.push(chunk);
     if (oo.isStartChunk) {
       startChunk = chunk;
