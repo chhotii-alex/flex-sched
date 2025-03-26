@@ -103,6 +103,7 @@
       return;
     }
     arrowOrigin.setTarget(arrowOriginPort, arrowTarget);
+    updateChunks(chunks);
   }
 
   function mouseUp(event) {
@@ -190,17 +191,17 @@
               {port.label}
             </text>
           {/if}
-        {/each}
-        {#each [[1, "yesChunk"], [2, "noChunk"], [1, "nextChunk"], [1, "subChunk1"], [2, "subChunk2"], [3, "followingChunk"]] as [portNum, chunkName]}
-          {#if chunk[chunkName]}
-            <line
-              x1={chunk.getPorts()[portNum].x}
-              y1={chunk.getPorts()[portNum].y}
-              x2={chunk[chunkName].getPorts()[0].x}
-              y2={chunk[chunkName].getPorts()[0].y}
-              stroke="green"
-            />
-          {/if}
+          {#each chunk.ports as port}
+            {#if !port.isInput && port.target}
+              <line
+                x1={port.getX()}
+                y1={port.getY()}
+                x2={port.target.ports[0].getX()}
+                y2={port.target.ports[0].getY()}
+                stroke="green"
+              />
+            {/if}
+          {/each}
         {/each}
         <ellipse
           cx={chunk.centerX + chunk.sizeX / 2}

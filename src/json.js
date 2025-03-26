@@ -1,34 +1,26 @@
-export function stringifyData(chunks, startChunk) {
-  let basics = [];
-  for (let chunk of chunks) {
-    let oo = {
-      id: chunk.id,
-      text: chunk.text,
-      className: chunk.constructor.name,
-      x: chunk.centerX,
-      y: chunk.centerY,
-      dx: chunk.sizeX,
-      dy: chunk.sizeY,
-      endTime: chunk.endTime,
-    };
-    if (chunk == startChunk) {
-      oo.isStartChunk = true;
-    }
-    for (let tag of [
-      "yesChunk",
-      "noChunk",
-      "nextChunk",
-      "subChunk1",
-      "subChunk2",
-      "followingChunk",
-    ]) {
-      if (chunk[tag]) {
-        oo[tag] = chunk[tag].id;
+function makeReplacer(startChunk) {
+  function replacer(key, value) {
+    if (value?.isChunk) {
+      let oo = { ...value };
+      if (value == startChunk) {
+        oo.isStartChunk = true;
       }
+      for (let port of value.ports) {
+        if (port.target) {
+          oo[port.tag] = port.target.id;
+        }
+      }
+      oo.ports = undefined;
+      oo.className = value.constructor.name;
+      return oo;
     }
-    basics.push(oo);
+    return value;
   }
-  return JSON.stringify(basics, null, 2);
+  return replacer;
+}
+
+export function stringifyData(chunks, startChunk) {
+  return JSON.stringify(chunks, makeReplacer(startChunk), 2);
 }
 
 export function chunksFromJSON(s) {
@@ -42,10 +34,10 @@ export function chunksFromJSON(s) {
     let text = oo.text;
     let chunk = new window[oo.className](text, id);
     chunksById[id] = chunk;
-    chunk.setCenter(oo.x, oo.y);
+    chunk.setCenter(oo.centerX, oo.centerY);
     chunk.endTime = oo.endTime;
-    if (oo.dx && oo.dy) {
-      chunk.setSize(oo.dx, oo.dy);
+    if (oo.sizeX && oo.sizeY) {
+      chunk.setSize(oo.sizeX, oo.sizeY);
     }
     newChunks.push(chunk);
     if (oo.isStartChunk) {
@@ -54,23 +46,11 @@ export function chunksFromJSON(s) {
   }
   for (let oo of basics) {
     let chunk = chunksById[oo.id];
-    if (oo.yesChunk) {
-      chunk.setYesChunk(chunksById[oo.yesChunk]);
-    }
-    if (oo.noChunk) {
-      chunk.setNoChunk(chunksById[oo.noChunk]);
-    }
-    if (oo.nextChunk) {
-      chunk.setNextChunk(chunksById[oo.nextChunk]);
-    }
-    if (oo.subChunk1) {
-      chunk.setNextChunk(chunksById[oo.subChunk1], 1);
-    }
-    if (oo.subChunk2) {
-      chunk.setNextChunk(chunksById[oo.subChunk2], 2);
-    }
-    if (oo.followingChunk) {
-      chunk.setNextChunk(chunksById[oo.followingChunk], 3);
+    for (let tag of chunk.ports.map((p) => p.tag)) {
+      if (oo[tag]) {
+        let otherChunk = chunksById[oo[tag]];
+        chunk.setTargetForTag(tag, otherChunk);
+      }
     }
   }
   return [startChunk, newChunks];

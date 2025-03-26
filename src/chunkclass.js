@@ -9,10 +9,12 @@ function getNextId() {
 }
 
 class Chunk {
+  isChunk = true;
   centerX = 50;
   centerY = 50;
   shape = "rect";
   endTime = null;
+  ports = [];
   constructor(text, id) {
     if (!id) {
       this.id = getNextId();
@@ -23,6 +25,13 @@ class Chunk {
     this.text = text;
     this.sizeX = 100;
     this.sizeY = 100;
+    this.addPort(
+      "target",
+      () => this.centerX,
+      () => this.centerY - this.sizeY / 2,
+      null,
+      true,
+    );
   }
   setCenter(x, y) {
     this.centerX = x;
@@ -35,12 +44,40 @@ class Chunk {
   getPoints() {
     return null;
   }
-  getPorts() {
-    return [];
+  addPort(tag, getX, getY, label = null, isInput = false) {
+    this.ports.push({
+      tag: tag,
+      getX: getX,
+      getY: getY,
+      label: label,
+      isInput: isInput,
+      target: null,
+    });
   }
-  setTarget() {}
+  getPorts() {
+    return this.ports.map((p) => {
+      return { x: p.getX(), y: p.getY(), label: p.label };
+    });
+  }
+  setTarget(port, target) {
+    if (port < 0 || port >= this.ports.length) return;
+    if (this.ports[port].isInput) return;
+    this.ports[port].target = target;
+  }
+  setTargetForTag(tag, target) {
+    this.ports = this.ports.map((p) => {
+      if (p.tag == tag) {
+        let newPort = { ...p };
+        newPort.target = target;
+        return newPort;
+      } else {
+        return p;
+      }
+    });
+  }
+
   pointsToChunk(otherChunk) {
-    return false;
+    return this.ports.find((p) => p.target == otherChunk) != undefined;
   }
 }
 
@@ -50,23 +87,24 @@ class FinalChunk extends Chunk {
   constructor(text, id) {
     super(text, id);
   }
-  getPorts() {
-    return [{ x: this.centerX, y: this.centerY - this.sizeY / 2 }];
-  }
 }
 
 class Question extends Chunk {
-  yesChunk = null;
-  noChunk = null;
   constructor(text, id) {
     super(text, id);
     this.shape = "polygon";
-  }
-  setYesChunk(chunk) {
-    this.yesChunk = chunk;
-  }
-  setNoChunk(chunk) {
-    this.noChunk = chunk;
+    this.addPort(
+      "yesChunk",
+      () => this.centerX + this.sizeX / 4,
+      () => this.centerY + this.sizeY / 4,
+      "Y",
+    );
+    this.addPort(
+      "noChunk",
+      () => this.centerX - this.sizeX / 4,
+      () => this.centerY + this.sizeY / 4,
+      "N",
+    );
   }
   getPoints() {
     return `${this.centerX} ${this.centerY - this.sizeY / 2}
@@ -74,100 +112,46 @@ class Question extends Chunk {
                 ${this.centerX} ${this.centerY + this.sizeY / 2}
                 ${this.centerX - this.sizeX / 2} ${this.centerY}`;
   }
-  getPorts() {
-    return [
-      { x: this.centerX, y: this.centerY - this.sizeY / 2 },
-      {
-        x: this.centerX + this.sizeX / 4,
-        y: this.centerY + this.sizeY / 4,
-        label: "Y",
-      },
-      {
-        x: this.centerX - this.sizeX / 4,
-        y: this.centerY + this.sizeY / 4,
-        label: "N",
-      },
-    ];
-  }
-  setTarget(port, target) {
-    if (port == 1) {
-      this.setYesChunk(target);
-    } else if (port == 2) {
-      this.setNoChunk(target);
-    }
-  }
-  pointsToChunk(otherChunk) {
-    if (otherChunk == this.yesChunk) return true;
-    if (otherChunk == this.noChunk) return true;
-    return false;
-  }
 }
 
 class State extends Chunk {
   nextChunk = null;
   constructor(text, id) {
     super(text, id);
-  }
-  setNextChunk(chunk) {
-    this.nextChunk = chunk;
-  }
-  getPorts() {
-    return [
-      { x: this.centerX, y: this.centerY - this.sizeY / 2 },
-      { x: this.centerX, y: this.centerY + this.sizeY / 2 },
-    ];
-  }
-  setTarget(port, target) {
-    if (port == 1) {
-      this.setNextChunk(target);
-    }
-  }
-  pointsToChunk(otherChunk) {
-    if (otherChunk == this.nextChunk) return true;
-    return false;
+    this.addPort(
+      "nextChunk",
+      () => this.centerX,
+      () => this.centerY + this.sizeY / 2,
+    );
   }
 }
 
 class Parallelizer extends Chunk {
-  subChunk1 = null;
-  subChunk2 = null;
-  followingChunk = null;
   constructor(text, id) {
     super(text, id);
     this.shape = "polygon";
     this.sizeX = 200;
-  }
-  setNextChunk(chunk, position) {
-    if (position == 1) {
-      this.subChunk1 = chunk;
-    } else if (position == 2) {
-      this.subChunk2 = chunk;
-    } else if (position == 3) {
-      this.followingChunk = chunk;
-    }
+    this.addPort(
+      "subChunk1",
+      () => this.centerX - this.sizeX / 4,
+      () => this.centerY + this.sizeY / 2,
+    );
+    this.addPort(
+      "subChunk2",
+      () => this.centerX + this.sizeX / 4,
+      () => this.centerY + this.sizeY / 2,
+    );
+    this.addPort(
+      "followingChunk",
+      () => this.centerX + this.sizeX / 2,
+      () => this.centerY,
+    );
   }
   getPoints() {
     return `${this.centerX - this.sizeX / 2} ${this.centerY - this.sizeY / 2}
                     ${this.centerX + this.sizeX / 2} ${this.centerY - this.sizeY / 2}
                     ${this.centerX + this.sizeX / 2} ${this.centerY + this.sizeY / 2}
                     ${this.centerX - this.sizeX / 2} ${this.centerY + this.sizeY / 2}`;
-  }
-  getPorts() {
-    return [
-      { x: this.centerX, y: this.centerY - this.sizeY / 2 },
-      { x: this.centerX - this.sizeX / 4, y: this.centerY + this.sizeY / 2 },
-      { x: this.centerX + this.sizeX / 4, y: this.centerY + this.sizeY / 2 },
-      { x: this.centerX + this.sizeX / 2, y: this.centerY },
-    ];
-  }
-  setTarget(port, target) {
-    this.setNextChunk(target, port);
-  }
-  pointsToChunk(otherChunk) {
-    if (otherChunk == this.subChunk1) return true;
-    if (otherChunk == this.subChunk2) return true;
-    if (otherChunk == this.followingChunk) return true;
-    return false;
   }
 }
 
