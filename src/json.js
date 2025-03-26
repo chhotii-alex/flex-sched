@@ -33,7 +33,7 @@ export function stringifyData(chunks, startChunk) {
 
 export function chunksFromJSON(s) {
   let basics = JSON.parse(s);
-  if (!basics.length) return makeBlank();
+  if (!basics.length) throw new Error("invalid chunks json");
   let chunksById = {};
   let newChunks = [];
   let startChunk = null;

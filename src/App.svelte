@@ -34,7 +34,12 @@
   }
 
   onMount(() => {
-    [startChunk, chunks] = chunksFromStorage();
+    try {
+      [startChunk, chunks] = chunksFromStorage();
+    } catch (e) {
+      chunks = makeBlank();
+      startChunk = null;
+    }
   });
 </script>
 
