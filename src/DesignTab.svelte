@@ -27,6 +27,16 @@
   let arrowTargetPort = null;
   let resizingItem = null;
 
+  function makeFeatureId(chunk, shape, detailId) {
+    return `${chunk.id}${shape}${detailId}`;
+  }
+
+  function parseFeatureId(s, shape) {
+    let fields = s.split(shape);
+    if (fields.length < 2) return [null, null];
+    return [fields[0], fields[1]];
+  }
+
   function mouseDown(event) {
     if (event.srcElement) {
       let item = event.srcElement;
@@ -36,15 +46,16 @@
           break;
         }
         if (item.tagName == "circle") {
-          let fields = item.id.split("_port");
-          if (fields.length < 2) break;
-          arrowOrigin = chunks.find((c) => c.id == fields[0]);
-          arrowOriginPort = fields[1];
-          arrowStartPoint = arrowOrigin.getPorts()[arrowOriginPort];
+          let [chunkId, portNum] = parseFeatureId(item.id, item.tagName);
+          arrowOrigin = chunks.find((c) => c.id == chunkId);
+          if (arrowOrigin) {
+            arrowOriginPort = portNum;
+            arrowStartPoint = arrowOrigin.getPorts()[portNum];
+          }
           break;
         }
         if (item.tagName == "ellipse") {
-          let id = item.id.substring(6);
+          let [id, _] = parseFeatureId(item.id, item.tagName);
           if (id) {
             resizingItem = chunks.find((c) => c.id == id);
           }
@@ -68,10 +79,13 @@
       arrowEndPoint = { x: event.offsetX, y: event.offsetY };
       let endTarget = event.srcElement;
       if (endTarget.tagName == "circle") {
-        let fields = endTarget.id.split("_port");
-        if (fields.length == 2) {
-          arrowTarget = chunks.find((c) => c.id == fields[0]);
-          arrowTargetPort = fields[1];
+        let [chunkId, portNum] = parseFeatureId(
+          endTarget.id,
+          endTarget.tagName,
+        );
+        if (chunkId) {
+          arrowTarget = chunks.find((c) => c.id == chunkId);
+          arrowTargetPort = portNum;
         }
       }
     } else if (resizingItem) {
@@ -178,7 +192,7 @@
             fill={chunk == arrowTarget && i == arrowTargetPort
               ? "green"
               : "lightGrey"}
-            id={`${chunk.id}_port${i}`}
+            id={makeFeatureId(chunk, "circle", i)}
           />
           {#if port.label}
             <text
@@ -209,7 +223,7 @@
           rx="6"
           ry="4"
           fill="black"
-          id={`sizer_${chunk.id}`}
+          id={makeFeatureId(chunk, "ellipse", 0)}
         />
       {/each}
       {#if arrowStartPoint && arrowEndPoint}
