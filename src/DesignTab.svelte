@@ -12,9 +12,19 @@
     const newChunk = new chunkClass("unnamed");
     if (selectedItem) {
       newChunk.setCenter(selectedItem.centerX - 25, selectedItem.centerY + 75);
+    } else {
+      newChunk.setCenter(scrollLeft + 50, scrollTop + 50);
     }
     chunks.push(newChunk);
     updateChunks(chunks);
+  }
+
+  let box;
+  let scrollTop = 0;
+  let scrollLeft = 0;
+  function parseScroll() {
+    scrollTop = box.scrollTop;
+    scrollLeft = box.scrollLeft;
   }
 
   let selectedItem = null;
@@ -156,8 +166,15 @@
 </script>
 
 <h2>Design Mode</h2>
+{scrollTop}, {scrollLeft}
 <div class="designSpace">
-  <div class="canvas" style="overflow:scroll;max-height:70vmin" width="95%">
+  <div
+    class="canvas"
+    style="overflow:scroll;max-height:70vmin"
+    width="95%"
+    bind:this={box}
+    on:scroll={parseScroll}
+  >
     <svg
       height="2000px"
       width="2000px"
