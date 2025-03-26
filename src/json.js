@@ -37,6 +37,20 @@ export function chunksFromJSON(s) {
     chunk.setCenter(oo.centerX, oo.centerY);
     chunk.endTime = oo.endTime;
     chunk.setSize(oo.sizeX, oo.sizeY);
+    chunk.isTop = oo.isTop;
+    for (let day of [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ]) {
+      if (oo[day] !== undefined) {
+        chunk[day] = oo[day];
+      }
+    }
     newChunks.push(chunk);
     if (oo.isStartChunk) {
       startChunk = chunk;

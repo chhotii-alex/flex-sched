@@ -163,10 +163,23 @@
   function deleteItem() {
     updateChunks(chunks.filter((c) => c != selectedItem));
   }
+
+  function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  let daysOfWeek = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+  ];
 </script>
 
 <h2>Design Mode</h2>
-{scrollTop}, {scrollLeft}
 <div class="designSpace">
   <div
     class="canvas"
@@ -277,6 +290,26 @@
         bind:value={selectedItem.endTime}
         on:input={didChange}
       />
+      <br />
+      <label for="topcheck">Pin to Top:</label>
+      <input
+        id="topcheck"
+        type="checkbox"
+        bind:checked={selectedItem.isTop}
+        on:input={didChange}
+      />
+      <br />
+      {#each daysOfWeek as day}
+        <label for={day}>{capitalize(day)}</label>
+        <input
+          id={day}
+          type="checkbox"
+          bind:checked={selectedItem[day]}
+          on:input={didChange}
+        />
+      {/each}
+
+      <br />
       {#if canBeDeleted(selectedItem)}
         <button on:click={deleteItem}>Delete</button>
       {/if}

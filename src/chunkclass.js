@@ -10,6 +10,14 @@ function getNextId() {
 
 class Chunk {
   isChunk = true;
+  isTop = false;
+  monday = true;
+  tuesday = true;
+  wednesday = true;
+  thursday = true;
+  friday = true;
+  saturday = true;
+  sunday = true;
   centerX = 50;
   centerY = 50;
   shape = "rect";
