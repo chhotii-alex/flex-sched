@@ -76,6 +76,7 @@
     if (itemBeingDragged) {
       itemBeingDragged.setCenter(event.offsetX, event.offsetY);
     } else if (arrowOrigin) {
+      let targetFound = false;
       arrowEndPoint = { x: event.offsetX, y: event.offsetY };
       let endTarget = event.srcElement;
       if (endTarget.tagName == "circle") {
@@ -86,7 +87,12 @@
         if (chunkId) {
           arrowTarget = chunks.find((c) => c.id == chunkId);
           arrowTargetPort = portNum;
+          targetFound = true;
         }
+      }
+      if (!targetFound) {
+        arrowTarget = null;
+        arrowTargetPort = null;
       }
     } else if (resizingItem) {
       if (event.offsetX > resizingItem.centerX) {
@@ -162,6 +168,10 @@
       {#each chunks as chunk (chunk.id)}
         <svelte:element
           this={chunk.shape}
+          class={[
+            chunk == startChunk && "start_chunk",
+            chunk == selectedItem && "selected_chunk",
+          ]}
           x={chunk.centerX - chunk.sizeX / 2}
           y={chunk.centerY - chunk.sizeY / 2}
           width={chunk.sizeX}
@@ -169,9 +179,6 @@
           rx={chunk.rx}
           ry={chunk.ry}
           points={chunk.getPoints()}
-          stroke={chunk == selectedItem ? "purple" : "black"}
-          stroke-width={chunk == selectedItem ? "3" : "1"}
-          fill={chunk == startChunk ? "orange" : "white"}
           id={chunk.id}
         />
         {#each chunk.text.split("\n") as text, i}
@@ -189,9 +196,7 @@
             r="10"
             cx={port.x}
             cy={port.y}
-            fill={chunk == arrowTarget && i == arrowTargetPort
-              ? "green"
-              : "lightGrey"}
+            class={[chunk == arrowTarget && i == arrowTargetPort && "target"]}
             id={makeFeatureId(chunk, "circle", i)}
           />
           {#if port.label}
@@ -276,5 +281,24 @@
   }
   svg {
     background-color: beige;
+  }
+  rect,
+  polygon {
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+  }
+  .start_chunk {
+    fill: orange;
+  }
+  .selected_chunk {
+    stroke: purple;
+    stroke-width: 3px;
+  }
+  circle {
+    fill: lightGrey;
+  }
+  circle.target {
+    fill: green;
   }
 </style>
