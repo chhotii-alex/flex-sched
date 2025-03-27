@@ -8,6 +8,20 @@ function getNextId() {
   return result;
 }
 
+function getDayOfWeek() {
+  const weekday = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const d = new Date();
+  return weekday[d.getDay()].toLowerCase();
+}
+
 class Chunk {
   isChunk = true;
   isTop = false;
@@ -200,11 +214,13 @@ class Parallelizer extends Chunk {
                     ${this.getX(-0.5)} ${this.getY(0.5)}`;
   }
   async do(runner, context) {
-    // TODO: timeout if bad day of week
-    let parallel = this.ports
-      .filter((p) => p.tag != "followingChunk" && p.target)
-      .map((p) => p.target);
-    await runner.runInParallel(this.endTime, parallel, context);
+    let dayTag = getDayOfWeek();
+    if (this[dayTag]) {
+      let parallel = this.ports
+        .filter((p) => p.tag != "followingChunk" && p.target)
+        .map((p) => p.target);
+      await runner.runInParallel(this.endTime, parallel, context);
+    }
     let nextChunk = this.getPortForTag("followingChunk").target;
     if (nextChunk) {
       await runner.runChunk(nextChunk, context);

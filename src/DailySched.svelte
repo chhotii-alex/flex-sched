@@ -341,7 +341,7 @@
   button {
     border-radius: 50%;
     border: 2px solid #ffebcd;
-    padding: 5px 0px;
+    padding: 5px 20px;
     margin: 4px;
   }
   p {

@@ -202,6 +202,7 @@
           class={[
             chunk == startChunk && "start_chunk",
             chunk == selectedItem && "selected_chunk",
+            chunk.isTop && "top_chunk",
           ]}
           x={chunk.centerX - chunk.sizeX / 2}
           y={chunk.centerY - chunk.sizeY / 2}
@@ -345,6 +346,9 @@
   .selected_chunk {
     stroke: purple;
     stroke-width: 3px;
+  }
+  .top_chunk {
+    fill: #ffe6ff;
   }
   circle {
     fill: lightGrey;
