@@ -73,15 +73,13 @@ class Chunk {
       target: null,
     });
   }
+  getPortForTag(tag) {
+    return this.ports.find((p) => p.tag == tag);
+  }
   getPorts() {
     return this.ports.map((p) => {
       return { x: p.getX(), y: p.getY(), label: p.label };
     });
-  }
-  setTarget(port, target) {
-    if (port < 0 || port >= this.ports.length) return;
-    if (this.ports[port].isInput) return;
-    this.ports[port].target = target;
   }
   setTargetForTag(tag, target) {
     this.ports = this.ports.map((p) => {
@@ -94,10 +92,20 @@ class Chunk {
       }
     });
   }
+  setTarget(port, target) {
+    if (port < 0 || port >= this.ports.length) return;
+    if (this.ports[port].isInput) return;
+    this.ports[port].target = target;
+  }
 
   pointsToChunk(otherChunk) {
     return this.ports.find((p) => p.target == otherChunk) != undefined;
   }
+
+  makeMarker() {
+    return `marker_${this.id}`;
+  }
+  async do(runner, context) {}
 }
 
 class FinalChunk extends Chunk {
@@ -105,6 +113,9 @@ class FinalChunk extends Chunk {
   ry = 10;
   constructor(text, id) {
     super(text, id);
+  }
+  async do(runner, context) {
+    await runner.face.setFinal(this.text, context);
   }
 }
 
@@ -131,10 +142,19 @@ class Question extends Chunk {
                 ${this.getX(0)} ${this.getY(0.5)}
                 ${this.getX(-0.5)} ${this.getY(0)}`;
   }
+
+  async do(runner, context) {
+    let response = await runner.face.waitQuestion(this.text, context);
+    let nextChunk = this.ports.find(
+      (p) => p.tag == response + "Chunk" && p.target,
+    )?.target;
+    if (nextChunk) {
+      await runner.runChunk(nextChunk, context);
+    }
+  }
 }
 
 class State extends Chunk {
-  nextChunk = null;
   constructor(text, id) {
     super(text, id);
     this.addPort(
@@ -142,6 +162,13 @@ class State extends Chunk {
       () => this.getX(0),
       () => this.getY(0.5),
     );
+  }
+  async do(runner, context) {
+    await runner.face.setCurrent(this.text, this.endTime, context);
+    let nextChunk = this.getPortForTag("nextChunk").target;
+    if (nextChunk) {
+      await runner.runChunk(nextChunk, context);
+    }
   }
 }
 
@@ -171,6 +198,17 @@ class Parallelizer extends Chunk {
                     ${this.getX(0.5)} ${this.getY(-0.5)}
                     ${this.getX(0.5)} ${this.getY(0.5)}
                     ${this.getX(-0.5)} ${this.getY(0.5)}`;
+  }
+  async do(runner, context) {
+    // TODO: timeout if bad day of week
+    let parallel = this.ports
+      .filter((p) => p.tag != "followingChunk" && p.target)
+      .map((p) => p.target);
+    await runner.runInParallel(this.endTime, parallel, context);
+    let nextChunk = this.getPortForTag("followingChunk").target;
+    if (nextChunk) {
+      await runner.runChunk(nextChunk, context);
+    }
   }
 }
 

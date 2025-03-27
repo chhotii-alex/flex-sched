@@ -2,6 +2,7 @@
   export let chunks;
   export let startChunk;
   export let updateChunks;
+  import UploadDownload from "./UploadDownload.svelte";
 
   import * as chunkClasses from "./chunkclass.js";
   Object.entries(chunkClasses).forEach(
@@ -180,6 +181,7 @@
 </script>
 
 <h2>Design Mode</h2>
+<UploadDownload bind:startChunk bind:chunks />
 <div class="designSpace">
   <div
     class="canvas"

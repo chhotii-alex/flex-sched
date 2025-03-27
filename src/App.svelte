@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import DesignTab from "./DesignTab.svelte";
-  import UploadDownload from "./UploadDownload.svelte";
+  import RunTab from "./RunTab.svelte";
   import { stringifyData, chunksFromJSON } from "./json.js";
   import { FinalChunk } from "./chunkclass.js";
 
@@ -43,12 +43,13 @@
   });
 </script>
 
+<button on:click={() => (tab = "run")}>Run Mode</button>
+<button on:click={() => (tab = "design")}>Design Mode</button>
 <main>
-  <UploadDownload bind:startChunk bind:chunks />
   {#if tab == "design"}
     <DesignTab bind:chunks bind:startChunk {updateChunks} />
   {:else}
-    <h2>Run Mode</h2>
+    <RunTab {chunks} {startChunk} />
   {/if}
 </main>
 
