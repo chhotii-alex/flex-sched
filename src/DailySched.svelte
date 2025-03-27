@@ -4,7 +4,7 @@
 
   export let nowDate;
   export let startChunk;
-  export let chunks;
+
   let errorState = false;
   let now = new Date();
 
@@ -341,7 +341,7 @@
   button {
     border-radius: 50%;
     border: 2px solid #ffebcd;
-    padding: 5px 16px;
+    padding: 5px 0px;
     margin: 4px;
   }
   p {
@@ -354,5 +354,6 @@
   }
   .container {
     margin: 0px;
+    height: 100svh;
   }
 </style>

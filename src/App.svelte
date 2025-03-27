@@ -46,7 +46,7 @@
 {#if tab == "design"}
   <DesignTab bind:chunks bind:startChunk {updateChunks} />
 {:else}
-  <RunTab {chunks} {startChunk} />
+  <RunTab {startChunk} />
 {/if}
 {#if tab != "run"}
   <button on:click={() => (tab = "run")}>Run Mode</button>

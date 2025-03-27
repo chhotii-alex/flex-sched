@@ -1,7 +1,6 @@
 <script>
   import { onMount, tick } from "svelte";
   import DailySched from "./DailySched.svelte";
-  export let chunks;
   export let startChunk;
 
   function nowDateStr(day) {
@@ -24,15 +23,11 @@
   });
 </script>
 
-<DailySched {nowDate} {startChunk} {chunks} />
+<DailySched {nowDate} {startChunk} />
 
 <style>
   * {
     background-color: #004225;
     color: #ffebcd;
-  }
-
-  h2 {
-    margin: 0px;
   }
 </style>

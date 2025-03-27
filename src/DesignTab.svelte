@@ -181,7 +181,7 @@
 </script>
 
 <UploadDownload bind:startChunk bind:chunks />
-<div class="designSpace">
+<div class="designSpace hideOnMobile">
   <div
     class="canvas"
     style="overflow:scroll;max-height:70vmin"
@@ -351,5 +351,10 @@
   }
   circle.target {
     fill: green;
+  }
+  @media only screen and (max-width: 1000px) {
+    div.hideOnMobile {
+      display: none;
+    }
   }
 </style>

@@ -34,10 +34,20 @@
 </script>
 
 {error}
-{#if url}
-  <a href={url} download={`schedule.json`}> Download This Plan </a>
-{/if}
+<div class="hideOnMobile">
+  {#if url}
+    <a href={url} download={`schedule.json`}> Download This Plan </a>
+  {/if}
+</div>
 <input id="myfiles" type="file" accept=".json" bind:files />
 {#if files}
   <button on:click={upload}>Upload</button>
 {/if}
+
+<style>
+  @media only screen and (max-width: 870px) {
+    div.hideOnMobile {
+      display: none;
+    }
+  }
+</style>
