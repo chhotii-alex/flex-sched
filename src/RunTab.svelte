@@ -24,5 +24,15 @@
   });
 </script>
 
-<h2>Run Mode</h2>
 <DailySched {nowDate} {startChunk} {chunks} />
+
+<style>
+  * {
+    background-color: #004225;
+    color: #ffebcd;
+  }
+
+  h2 {
+    margin: 0px;
+  }
+</style>

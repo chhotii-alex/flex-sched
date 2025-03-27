@@ -289,32 +289,34 @@
   }
 </script>
 
-{#each tasks as task}
-  {#await task.promise}
-    <div>
-      <p>
-        {task.text}
-      </p>
-      {#if task.buttons}
+<div class="container">
+  {#each tasks as task}
+    {#await task.promise}
+      <div>
         <p>
-          {#each task.buttons as button}
-            <button onclick={button.action} class="clicky">{button.text}</button
-            >
-          {/each}
+          {task.text}
         </p>
-      {/if}
-    </div>
-    <hr />
-  {:catch error}
-    <p class="invisible">
-      not done: {task.text}
-    </p>
-  {/await}
-{/each}
+        {#if task.buttons}
+          <p>
+            {#each task.buttons as button}
+              <button onclick={button.action} class="clicky"
+                >{button.text}</button
+              >
+            {/each}
+          </p>
+        {/if}
+      </div>
+      <hr />
+    {:catch error}
+      <p class="invisible">
+        not done: {task.text}
+      </p>
+    {/await}
+  {/each}
 
-{nowStr}
-{nowDate}
-
+  {nowStr}
+  {nowDate}
+</div>
 {#if errorState}
   <p class="errorStateClass">stop</p>
 {/if}
@@ -327,5 +329,30 @@
     color: red;
     font-size: 66px;
     font-weight: bold;
+  }
+  * {
+    background-color: #004225;
+    color: #ffebcd;
+    font-family: "Playwrite HR Lijeva", cursive;
+  }
+  hr {
+    border: 2px solid #ffebcd;
+  }
+  button {
+    border-radius: 50%;
+    border: 2px solid #ffebcd;
+    padding: 5px 16px;
+    margin: 4px;
+  }
+  p {
+    margin: auto;
+    text-align: center;
+  }
+  div {
+    margin: auto;
+    padding: 20px 2px;
+  }
+  .container {
+    margin: 0px;
   }
 </style>

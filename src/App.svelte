@@ -43,15 +43,17 @@
   });
 </script>
 
-<button on:click={() => (tab = "run")}>Run Mode</button>
-<button on:click={() => (tab = "design")}>Design Mode</button>
-<main>
-  {#if tab == "design"}
-    <DesignTab bind:chunks bind:startChunk {updateChunks} />
-  {:else}
-    <RunTab {chunks} {startChunk} />
-  {/if}
-</main>
+{#if tab == "design"}
+  <DesignTab bind:chunks bind:startChunk {updateChunks} />
+{:else}
+  <RunTab {chunks} {startChunk} />
+{/if}
+{#if tab != "run"}
+  <button on:click={() => (tab = "run")}>Run Mode</button>
+{/if}
+{#if tab != "design"}
+  <button on:click={() => (tab = "design")}>Design Mode</button>
+{/if}
 
 <style>
 </style>

@@ -180,7 +180,6 @@
   ];
 </script>
 
-<h2>Design Mode</h2>
 <UploadDownload bind:startChunk bind:chunks />
 <div class="designSpace">
   <div
