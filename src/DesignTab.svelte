@@ -190,7 +190,7 @@
   >
     <svg
       height="2000px"
-      width="2000px"
+      width="3000px"
       on:mousedown={mouseDown}
       on:mousemove={mouseMove}
       on:mouseup={mouseUp}
