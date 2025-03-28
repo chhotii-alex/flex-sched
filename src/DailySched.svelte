@@ -59,7 +59,7 @@
   }
 
   function advanceMock() {
-    mockTime = new Date(mockTime.valuOf() + 1000 * 60 * 37);
+    mockTime = new Date(mockTime.valueOf() + 1000 * 60 * 37);
   }
 
   class Interface {
@@ -340,7 +340,7 @@
         {#if task.buttons}
           <p>
             {#each task.buttons as button}
-              <button onclick={button.action} class="clicky"
+              <button on:click={button.action} class="clicky"
                 >{button.text}</button
               >
             {/each}
