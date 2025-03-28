@@ -6,7 +6,25 @@
   export let startChunk;
 
   let errorState = false;
-  let now = new Date();
+  let developmentMode = true;
+  let usingMockTime = false;
+  let mockTime = makeMockTime();
+
+  function makeMockTime() {
+    let aTime = new Date();
+    aTime.setHours(4, 30, 0);
+    return aTime;
+  }
+
+  function getNow(usingMockTime, mockTime, realTime) {
+    if (usingMockTime) {
+      return mockTime;
+    } else {
+      return realTime;
+    }
+  }
+
+  $: now = getNow(usingMockTime, mockTime, new Date());
   let today = new Date();
 
   function todayStrFromDate(day) {
@@ -20,28 +38,28 @@
     }
   }
 
-  function getNowDateKey(day) {
+  function getTodayKey(day) {
     return `donethings_${day}`;
   }
 
-  $: todayKey = getNowDateKey(todayStr);
+  $: todayKey = getTodayKey(todayStr);
 
-  function getNowStr(now) {
-    let s = now.toTimeString();
+  function getNowStr(aTime) {
+    let s = aTime.toTimeString();
     let fields = s.split(" ");
     return fields[0];
   }
 
-  $: nowStr = getNowStr(now);
+  function changeMockTime(event) {
+    let s = event.target.value;
+    let timeParts = s.split(":");
+    let aTime = new Date();
+    aTime.setHours(...timeParts);
+    mockTime = aTime;
+  }
 
-  function getNow() {
-    let fields = nowStr.split(":");
-    for (let j = 0; j < 3; ++j) {
-      if (fields[j].length != 2) {
-        throw "bad time string";
-      }
-    }
-    return [parseInt(fields[0]), parseInt(fields[1]), parseInt(fields[2])];
+  function advanceMock() {
+    mockTime = new Date(mockTime.valuOf() + 1000 * 60 * 37);
   }
 
   class Interface {
@@ -73,10 +91,14 @@
       await tick();
     }
 
-    async runNewDay(key) {
+    async runNewDay(key, usingMockTime) {
       await this.clearTimeouts();
       tasks = [];
-      savedResults = this.resultsFromStorage(key);
+      if (usingMockTime) {
+        savedResults = {};
+      } else {
+        savedResults = this.resultsFromStorage(key);
+      }
       try {
         await runDayToDo(key);
       } catch (error) {
@@ -138,8 +160,10 @@
 
     setPriorResults(text, result) {
       savedResults[text] = result;
-      let s = JSON.stringify(savedResults);
-      localStorage.setItem(todayKey, s);
+      if (!usingMockTime) {
+        let s = JSON.stringify(savedResults);
+        localStorage.setItem(todayKey, s);
+      }
     }
 
     async waitForButtonResponse(questionText, responses, context) {
@@ -255,7 +279,7 @@
     await run.run();
   }
 
-  $: face.runNewDay(todayKey);
+  $: face.runNewDay(todayKey, usingMockTime);
 
   onDestroy(() => {
     face.clearTimeouts();
@@ -264,7 +288,7 @@
   onMount(() => {
     const interval = setInterval(() => {
       checkToday();
-      now = new Date();
+      now = getNow(usingMockTime, mockTime, new Date());
     }, 1000 * 15);
     return () => clearInterval(interval);
   });
@@ -295,6 +319,18 @@
 </script>
 
 <div class="container">
+  {#if developmentMode}
+    <label for="usingMockTime">Time Testing Mode</label>
+    <input id="usingMockTime" type="checkbox" bind:checked={usingMockTime} />
+    {#if usingMockTime}
+      <input
+        type="time"
+        value={getNowStr(mockTime)}
+        on:input={changeMockTime}
+      />
+      <button on:click={advanceMock}>Advance</button>
+    {/if}
+  {/if}
   {#each tasks as task}
     {#await task.promise}
       <div>
@@ -319,7 +355,7 @@
     {/await}
   {/each}
 
-  {nowStr}
+  {getNowStr(now)}
   {todayStr}
   {#if showConfirm}
     <span class="subtle"> Are you sure? Really reset? </span>
