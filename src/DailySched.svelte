@@ -3,11 +3,22 @@
   import { isAfterTime, timeStringToMinutes } from "./timeutil.js";
   import MyDayRunner from "./runner.js";
 
-  export let nowDate;
   export let startChunk;
 
   let errorState = false;
   let now = new Date();
+  let today = new Date();
+
+  function nowDateStr(day) {
+    return day.toDateString();
+  }
+
+  $: nowDate = nowDateStr(today);
+  function checkToday() {
+    if (new Date().getDate() != today.getDate()) {
+      today = new Date();
+    }
+  }
 
   function getNowDateKey(day) {
     return `donethings_${day}`;
@@ -252,6 +263,7 @@
 
   onMount(() => {
     const interval = setInterval(() => {
+      checkToday();
       now = new Date();
     }, 1000 * 15);
     return () => clearInterval(interval);
@@ -270,6 +282,15 @@
     resolve() {
       this.resolution("timeout");
     }
+  }
+
+  let showConfirm = false;
+
+  async function resetWhatsDone() {
+    localStorage.removeItem(nowDateKey);
+    showConfirm = false;
+    await tick();
+    nowDate = nowDate;
   }
 </script>
 
@@ -300,6 +321,17 @@
 
   {nowStr}
   {nowDate}
+  {#if showConfirm}
+    <span class="subtle"> Are you sure? Really reset? </span>
+    <button class="subtle" on:click={(e) => (showConfirm = false)}>
+      No, Don't Reset</button
+    >
+    <button class="subtle" on:click={resetWhatsDone}> Yes</button>
+  {:else}
+    <button class="subtle" on:click={(e) => (showConfirm = true)}>
+      Reset
+    </button>
+  {/if}
 </div>
 {#if errorState}
   <p class="errorStateClass">stop</p>
@@ -318,6 +350,10 @@
     background-color: #004225;
     color: #ffebcd;
     font-family: "Playwrite HR Lijeva", cursive;
+  }
+  .subtle {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    border: none;
   }
   hr {
     border: 2px solid #ffebcd;

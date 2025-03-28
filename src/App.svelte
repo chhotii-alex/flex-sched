@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import DesignTab from "./DesignTab.svelte";
-  import RunTab from "./RunTab.svelte";
+  import DailySched from "./DailySched.svelte";
   import { stringifyData, chunksFromJSON } from "./json.js";
   import { FinalChunk } from "./chunkclass.js";
 
@@ -46,7 +46,7 @@
 {#if tab == "design"}
   <DesignTab bind:chunks bind:startChunk {updateChunks} />
 {:else}
-  <RunTab {startChunk} />
+  <DailySched {startChunk} />
 {/if}
 {#if tab != "run"}
   <button on:click={() => (tab = "run")}>Run Mode</button>
