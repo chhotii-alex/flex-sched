@@ -1,3 +1,5 @@
+import { isAfterTime } from "./timeutil.js";
+
 let nextId = 1;
 function updateId(otherId) {
   nextId = otherId + 1;
@@ -158,6 +160,7 @@ class Question extends Chunk {
   }
 
   async do(runner, context) {
+    if (isAfterTime(this.endTime)) return;
     let response = await runner.face.waitQuestion(this.text, context);
     let nextChunk = this.ports.find(
       (p) => p.tag == response + "Chunk" && p.target,
@@ -178,7 +181,9 @@ class State extends Chunk {
     );
   }
   async do(runner, context) {
-    await runner.face.setCurrent(this.text, this.endTime, context);
+    if (!isAfterTime(this.endTime)) {
+      await runner.face.setCurrent(this.text, this.endTime, context);
+    }
     let nextChunk = this.getPortForTag("nextChunk").target;
     if (nextChunk) {
       await runner.runChunk(nextChunk, context);
@@ -214,6 +219,7 @@ class Parallelizer extends Chunk {
                     ${this.getX(-0.5)} ${this.getY(0.5)}`;
   }
   async do(runner, context) {
+    if (isAfterTime(this.endTime)) return;
     let dayTag = getDayOfWeek();
     if (this[dayTag]) {
       let parallel = this.ports

@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy, tick } from "svelte";
+  import { isAfterTime, timeStringToMinutes } from "./timeutil.js";
   import MyDayRunner from "./runner.js";
 
   export let nowDate;
@@ -7,16 +8,6 @@
 
   let errorState = false;
   let now = new Date();
-
-  function timeStringToMinutes(str) {
-    if (typeof str != "string") return 0;
-    let fields = str.split(":");
-    let minutes = 60 * parseInt(fields[0]);
-    if (fields.length > 1) {
-      minutes += parseInt(fields[1]);
-    }
-    return minutes;
-  }
 
   function getNowDateKey(day) {
     return `donethings_${day}`;
@@ -99,7 +90,7 @@
         let doneArray = [];
         let notDoneArray = [];
         for (const obj of this.timeoutResolutions) {
-          if (this.isAfterTime(obj.when)) {
+          if (isAfterTime(obj.when)) {
             doneArray.push(obj);
           } else {
             notDoneArray.push(obj);
@@ -117,17 +108,10 @@
       }
     }
 
-    isAfterTime(aTime) {
-      let [h, m, s] = getNow();
-      let nowTime = h * 60 + m;
-      let noTime = timeStringToMinutes(aTime);
-      return nowTime > noTime;
-    }
-
     wasAfterTime(aTime, token) {
       let result = this.checkPriorResults(token);
       if (result == null) {
-        result = this.isAfterTime(aTime);
+        result = isAfterTime(aTime);
         this.setPriorResults(token, result);
       }
       return result;
@@ -192,7 +176,7 @@
     }
 
     waitEndTime(endTime) {
-      if (this.isAfterTime(endTime)) {
+      if (isAfterTime(endTime)) {
         return Promise.resolve("timeout");
       }
       const myPromise = new Promise((resolve, reject) => {
