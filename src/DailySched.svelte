@@ -9,11 +9,11 @@
   let now = new Date();
   let today = new Date();
 
-  function nowDateStr(day) {
+  function todayStrFromDate(day) {
     return day.toDateString();
   }
 
-  $: nowDate = nowDateStr(today);
+  $: todayStr = todayStrFromDate(today);
   function checkToday() {
     if (new Date().getDate() != today.getDate()) {
       today = new Date();
@@ -24,7 +24,7 @@
     return `donethings_${day}`;
   }
 
-  $: nowDateKey = getNowDateKey(nowDate);
+  $: todayKey = getNowDateKey(todayStr);
 
   function getNowStr(now) {
     let s = now.toTimeString();
@@ -139,7 +139,7 @@
     setPriorResults(text, result) {
       savedResults[text] = result;
       let s = JSON.stringify(savedResults);
-      localStorage.setItem(nowDateKey, s);
+      localStorage.setItem(todayKey, s);
     }
 
     async waitForButtonResponse(questionText, responses, context) {
@@ -255,7 +255,7 @@
     await run.run();
   }
 
-  $: face.runNewDay(nowDateKey);
+  $: face.runNewDay(todayKey);
 
   onDestroy(() => {
     face.clearTimeouts();
@@ -287,10 +287,10 @@
   let showConfirm = false;
 
   async function resetWhatsDone() {
-    localStorage.removeItem(nowDateKey);
+    localStorage.removeItem(todayKey);
     showConfirm = false;
     await tick();
-    nowDate = nowDate;
+    todayStr = todayStr;
   }
 </script>
 
@@ -320,7 +320,7 @@
   {/each}
 
   {nowStr}
-  {nowDate}
+  {todayStr}
   {#if showConfirm}
     <span class="subtle"> Are you sure? Really reset? </span>
     <button class="subtle" on:click={(e) => (showConfirm = false)}>
