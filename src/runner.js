@@ -38,7 +38,10 @@ class MyDayRunner {
     if (aChunk.isTop) {
       context = context.childWithMarker("top");
     }
-    await aChunk.do(this, context);
+    if (!this.face.isAfterTime(aChunk.endTime)) {
+      await aChunk.do(this, context);
+    }
+    await aChunk.doPostTimeout(this, context);
   }
 
   async runInParallel(endTime, chunks, context) {

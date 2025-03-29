@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy, tick } from "svelte";
-  import { isAfterTime, timeStringToMinutes } from "./timeutil.js";
+  import { timeStringToMinutes } from "./timeutil.js";
   import MyDayRunner from "./runner.js";
 
   export let startChunk;
@@ -59,7 +59,9 @@
   }
 
   function advanceMock() {
-    mockTime = new Date(mockTime.valueOf() + 1000 * 60 * 37);
+    if (mockTime.getHours() < 23) {
+      mockTime = new Date(mockTime.valueOf() + 1000 * 60 * 37);
+    }
   }
 
   class Interface {
@@ -95,6 +97,7 @@
       await this.clearTimeouts();
       tasks = [];
       if (usingMockTime) {
+        mockTime = makeMockTime();
         savedResults = {};
       } else {
         savedResults = this.resultsFromStorage(key);
@@ -118,12 +121,31 @@
       return {};
     }
 
+    isAfterTime(aTime) {
+      if (!aTime) return false;
+      let fields = now.toTimeString().split(" ");
+      fields = fields[0].split(":");
+      for (let j = 0; j < 3; ++j) {
+        if (fields[j].length != 2) {
+          throw "bad time string";
+        }
+      }
+      let [h, m, s] = [
+        parseInt(fields[0]),
+        parseInt(fields[1]),
+        parseInt(fields[2]),
+      ];
+      let nowTime = h * 60 + m;
+      let noTime = timeStringToMinutes(aTime);
+      return nowTime > noTime;
+    }
+
     async checkTimeouts(__) {
       while (true) {
         let doneArray = [];
         let notDoneArray = [];
         for (const obj of this.timeoutResolutions) {
-          if (isAfterTime(obj.when)) {
+          if (this.isAfterTime(obj.when)) {
             doneArray.push(obj);
           } else {
             notDoneArray.push(obj);
@@ -144,7 +166,7 @@
     wasAfterTime(aTime, token) {
       let result = this.checkPriorResults(token);
       if (result == null) {
-        result = isAfterTime(aTime);
+        result = this.isAfterTime(aTime);
         this.setPriorResults(token, result);
       }
       return result;
@@ -211,7 +233,7 @@
     }
 
     waitEndTime(endTime) {
-      if (isAfterTime(endTime)) {
+      if (this.isAfterTime(endTime)) {
         return Promise.resolve("timeout");
       }
       const myPromise = new Promise((resolve, reject) => {
@@ -270,16 +292,17 @@
 
   let face = new Interface();
 
-  let savedResults = null;
+  let savedResults;
 
-  let tasks = [];
+  let tasks;
 
   async function runDayToDo(key) {
     let run = new MyDayRunner(face, startChunk);
     await run.run();
   }
 
-  $: face.runNewDay(todayKey, usingMockTime);
+  let ticker = 0;
+  $: face.runNewDay(todayKey, usingMockTime, ticker);
 
   onDestroy(() => {
     face.clearTimeouts();
@@ -314,7 +337,7 @@
     localStorage.removeItem(todayKey);
     showConfirm = false;
     await tick();
-    todayStr = todayStr;
+    ticker += 1;
   }
 </script>
 
@@ -357,17 +380,19 @@
 
   {getNowStr(now)}
   {todayStr}
-  {#if showConfirm}
-    <span class="subtle"> Are you sure? Really reset? </span>
-    <button class="subtle" on:click={(e) => (showConfirm = false)}>
-      No, Don't Reset</button
-    >
-    <button class="subtle" on:click={resetWhatsDone}> Yes</button>
-  {:else}
-    <button class="subtle" on:click={(e) => (showConfirm = true)}>
-      Reset
-    </button>
-  {/if}
+  <div>
+    {#if showConfirm}
+      <span class="subtle"> Are you sure? Really reset? </span>
+      <button class="subtle" on:click={(e) => (showConfirm = false)}>
+        No, Don't Reset</button
+      >
+      <button class="subtle" on:click={resetWhatsDone}> Yes</button>
+    {:else}
+      <button class="subtle" on:click={(e) => (showConfirm = true)}>
+        Reset
+      </button>
+    {/if}
+  </div>
 </div>
 {#if errorState}
   <p class="errorStateClass">stop</p>
