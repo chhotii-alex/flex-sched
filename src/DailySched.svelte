@@ -6,7 +6,7 @@
   export let startChunk;
 
   let errorState = false;
-  let developmentMode = true;
+  let developmentMode = false;
   let usingMockTime = false;
   let mockTime = makeMockTime();
 

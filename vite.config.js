@@ -7,4 +7,5 @@ export default defineConfig({
   preview: {
     port: 8087,
   },
+    base: '/flex-sched/',
 });
