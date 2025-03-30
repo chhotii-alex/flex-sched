@@ -1,7 +1,6 @@
 <script>
   export let chunks;
   export let startChunk;
-  export let updateChunks;
   import UploadDownload from "./UploadDownload.svelte";
 
   import * as chunkClasses from "./chunkclass.js";
@@ -17,7 +16,7 @@
       newChunk.setCenter(scrollLeft + 50, scrollTop + 50);
     }
     chunks.push(newChunk);
-    updateChunks(chunks);
+    chunks = chunks;
   }
 
   let box;
@@ -113,7 +112,7 @@
         resizingItem.sizeY = (event.offsetY - resizingItem.centerY) * 2;
       }
     }
-    updateChunks(chunks);
+    chunks = chunks;
   }
 
   function completeArrow() {
@@ -134,7 +133,7 @@
       return;
     }
     arrowOrigin.setTarget(arrowOriginPort, arrowTarget);
-    updateChunks(chunks);
+    chunks = chunks;
   }
 
   function mouseUp(event) {
@@ -150,7 +149,7 @@
   }
 
   function didChange(event) {
-    updateChunks(chunks);
+    chunks = chunks;
   }
 
   function canBeDeleted(otherChunk) {
@@ -162,7 +161,7 @@
   }
 
   function deleteItem() {
-    updateChunks(chunks.filter((c) => c != selectedItem));
+    chunks = chunks.filter((c) => c != selectedItem);
   }
 
   function capitalize(s) {

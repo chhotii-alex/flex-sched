@@ -16,10 +16,11 @@
     return [newChunk];
   }
 
-  function updateChunks(newChunks) {
-    chunks = newChunks;
+  $: updateChunks(chunks, startChunk);
+
+  function updateChunks(newChunks, newStartChunk) {
     if (isBrowser) {
-      let s = stringifyData(chunks, startChunk);
+      let s = stringifyData(newChunks, newStartChunk);
       localStorage.setItem("chunks", s);
     }
   }
