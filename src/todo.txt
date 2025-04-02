@@ -1,2 +1,3 @@
+* bugfix? reload should not derail thing decided by 11:00
 * TEST mockTime
 * TEST resetting
