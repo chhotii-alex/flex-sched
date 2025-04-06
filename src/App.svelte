@@ -8,15 +8,15 @@
   const isBrowser = typeof window !== "undefined";
 
   let tab = "design";
-  let chunks = [];
-  let startChunk = null;
+  let chunks;
+  let startChunk;
 
   function makeBlank() {
     const newChunk = new FinalChunk("Design\nmy day!");
     return [newChunk];
   }
 
-  $: updateChunks(chunks, startChunk);
+  $: if (chunks) updateChunks(chunks, startChunk);
 
   function updateChunks(newChunks, newStartChunk) {
     if (isBrowser) {
@@ -45,7 +45,7 @@
 </script>
 
 {#if tab == "design"}
-  <DesignTab bind:chunks bind:startChunk {updateChunks} />
+  <DesignTab bind:chunks bind:startChunk />
 {:else}
   <DailySched {startChunk} />
 {/if}
