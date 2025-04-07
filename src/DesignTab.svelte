@@ -111,8 +111,8 @@
       if (event.offsetY > resizingItem.centerY) {
         resizingItem.sizeY = (event.offsetY - resizingItem.centerY) * 2;
       }
+      chunks = chunks;
     }
-    chunks = chunks;
   }
 
   function completeArrow() {
