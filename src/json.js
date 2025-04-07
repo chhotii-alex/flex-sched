@@ -1,3 +1,5 @@
+import { chunkClassLookup } from "./chunkclass.js";
+
 function makeReplacer(startChunk) {
   function replacer(key, value) {
     if (value?.isChunk) {
@@ -11,7 +13,7 @@ function makeReplacer(startChunk) {
         }
       }
       oo.ports = undefined;
-      oo.className = value.constructor.name;
+      oo.className = value.className;
       return oo;
     }
     return value;
@@ -32,7 +34,7 @@ export function chunksFromJSON(s) {
   for (let oo of basics) {
     let id = oo.id;
     let text = oo.text;
-    let chunk = new window[oo.className](text, id);
+    let chunk = new chunkClassLookup[oo.className](text, id);
     chunksById[id] = chunk;
     chunk.setCenter(oo.centerX, oo.centerY);
     chunk.endTime = oo.endTime;

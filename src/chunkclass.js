@@ -126,6 +126,7 @@ class Chunk {
 class FinalChunk extends Chunk {
   rx = 10;
   ry = 10;
+  className = "FinalChunk";
   constructor(text, id) {
     super(text, id);
   }
@@ -135,6 +136,7 @@ class FinalChunk extends Chunk {
 }
 
 class Question extends Chunk {
+  className = "Question";
   constructor(text, id) {
     super(text, id);
     this.shape = "polygon";
@@ -170,6 +172,7 @@ class Question extends Chunk {
 }
 
 class State extends Chunk {
+  className = "State";
   constructor(text, id) {
     super(text, id);
     this.addPort(
@@ -191,6 +194,7 @@ class State extends Chunk {
 }
 
 class Parallelizer extends Chunk {
+  className = "Parallelizer";
   constructor(text, id) {
     super(text, id);
     this.shape = "polygon";
@@ -235,4 +239,11 @@ class Parallelizer extends Chunk {
   }
 }
 
-export { FinalChunk, Question, State, Parallelizer };
+let chunkClassLookup = {
+  FinalChunk: FinalChunk,
+  Question: Question,
+  State: State,
+  Parallelizer: Parallelizer,
+};
+
+export { FinalChunk, chunkClassLookup };

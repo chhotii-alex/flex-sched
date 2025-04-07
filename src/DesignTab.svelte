@@ -3,10 +3,7 @@
   export let startChunk;
   import UploadDownload from "./UploadDownload.svelte";
 
-  import * as chunkClasses from "./chunkclass.js";
-  Object.entries(chunkClasses).forEach(
-    ([name, exported]) => (window[name] = exported),
-  );
+  import { chunkClassLookup } from "./chunkclass.js";
 
   function addState(chunkClass) {
     const newChunk = new chunkClass("unnamed");
@@ -85,6 +82,7 @@
   function mouseMove(event) {
     if (itemBeingDragged) {
       itemBeingDragged.setCenter(event.offsetX, event.offsetY);
+      chunks = chunks;
     } else if (arrowOrigin) {
       let targetFound = false;
       arrowEndPoint = { x: event.offsetX, y: event.offsetY };
@@ -317,7 +315,7 @@
     {/if}
   </div>
   <div class="buttons">
-    {#each Object.entries(chunkClasses) as [name, oneClass]}
+    {#each Object.entries(chunkClassLookup) as [name, oneClass]}
       <button on:click={(e) => addState(oneClass)}>
         Add {name}
       </button>

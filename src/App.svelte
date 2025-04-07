@@ -38,6 +38,7 @@
     try {
       [startChunk, chunks] = chunksFromStorage();
     } catch (e) {
+      console.error(e);
       chunks = makeBlank();
       startChunk = null;
     }
