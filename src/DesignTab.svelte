@@ -275,7 +275,7 @@
     <h2>Inspector</h2>
     {#if selectedItem}
       <p>
-        {selectedItem.constructor.name}
+        {selectedItem.className}
       </p>
       <textarea bind:value={selectedItem.text} rows="5" on:input={didChange}>
       </textarea>

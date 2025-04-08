@@ -38,9 +38,7 @@ class MyDayRunner {
     if (aChunk.isTop) {
       context = context.childWithMarker("top");
     }
-    if (!this.face.isAfterTime(aChunk.endTime)) {
-      await aChunk.do(this, context);
-    }
+    await aChunk.do(this, context);
     await aChunk.doPostTimeout(this, context);
   }
 

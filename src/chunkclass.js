@@ -161,7 +161,12 @@ class Question extends Chunk {
   }
 
   async do(runner, context) {
-    let response = await runner.face.waitQuestion(this.text, context);
+    let response = await runner.face.waitForButtonResponse(
+      this.text,
+      ["yes", "no"],
+      context,
+      this.endTime,
+    );
     let nextChunk = this.ports.find(
       (p) => p.tag == response + "Chunk" && p.target,
     )?.target;

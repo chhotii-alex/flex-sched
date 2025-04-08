@@ -188,9 +188,12 @@
       }
     }
 
-    async waitForButtonResponse(questionText, responses, context) {
+    async waitForButtonResponse(questionText, responses, context, endTime) {
       let response = this.checkPriorResults(questionText);
       if (response == null || response == "timeout") {
+        if (endTime != null) {
+          context = context.childWithAggPromise(this.waitEndTime(endTime));
+        }
         response = await this.waitAnswerButton(
           questionText,
           context,
@@ -199,14 +202,6 @@
         this.setPriorResults(questionText, response);
       }
       return response;
-    }
-
-    async waitQuestion(questionText, context) {
-      return await this.waitForButtonResponse(
-        questionText,
-        ["yes", "no"],
-        context,
-      );
     }
 
     async waitForDone(label, context) {
@@ -258,6 +253,7 @@
       return [promise, rejection];
     }
 
+    // TODO: DRY: one generalized function to replace waitButton and waitAnswerButton?
     async waitButton(text, context) {
       let buttons = [];
       let justButtonPromise = new Promise((resolve, reject) => {
