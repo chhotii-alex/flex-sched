@@ -279,16 +279,19 @@
       </p>
       <textarea bind:value={selectedItem.text} rows="5" on:input={didChange}>
       </textarea>
+      <br/>
       {#if selectedItem != startChunk}
         <button on:click={() => (startChunk = selectedItem)}>
           Set Start
         </button>
+	<br/>
       {/if}
       <input
         type="time"
         bind:value={selectedItem.endTime}
         on:input={didChange}
       />
+      <br/>
       <br />
       <label for="topcheck">Pin to Top:</label>
       <input
@@ -299,13 +302,14 @@
       />
       <br />
       {#each daysOfWeek as day}
-        <label for={day}>{capitalize(day)}</label>
         <input
           id={day}
           type="checkbox"
           bind:checked={selectedItem[day]}
           on:input={didChange}
         />
+        <label for={day}>{capitalize(day)}</label>
+	<br/>
       {/each}
 
       <br />
