@@ -10,3 +10,12 @@ export function timeStringToMinutes(str) {
   }
   return minutes;
 }
+
+export function isoToday() {
+    let now = new Date();
+    let [year, month, day] = [now.getFullYear(), now.getMonth(), now.getDate()];
+    month += 1;
+    [year, month, day] = [year.toString(), month.toString(), day.toString()];
+    [month, day] = [month.padStart(2, '0'), day.padStart(2, '0')];
+    return `${year}-${month}-${day}`;
+}

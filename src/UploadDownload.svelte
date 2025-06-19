@@ -1,5 +1,6 @@
 <script>
   import { stringifyData, chunksFromJSON } from "./json.js";
+  import { isoToday } from "./timeutil.js";
 
   export let chunks;
   export let startChunk;
@@ -36,7 +37,7 @@
 {error}
 <div class="hideOnMobile">
   {#if url}
-    <a href={url} download={`schedule.json`}> Download This Plan </a>
+    <a href={url} download={`${isoToday()}.json`}> Download This Plan </a>
   {/if}
 </div>
 <input id="myfiles" type="file" accept=".json" bind:files />
